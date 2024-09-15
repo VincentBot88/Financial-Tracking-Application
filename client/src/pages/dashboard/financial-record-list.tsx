@@ -10,6 +10,16 @@ interface EditableCellProps extends CellProps<FinancialRecord> {
   editable: boolean;
 }
 
+// Function to format date
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+};
+
 const EditableCell: React.FC<EditableCellProps> = ({
   value: initialValue,
   row,
@@ -25,6 +35,13 @@ const EditableCell: React.FC<EditableCellProps> = ({
     updateRecord(row.index, column.id, value);
   };
 
+  const displayValue = useMemo(() => {
+    if (column.id === 'date' && typeof value === 'string') {
+      return formatDate(value);
+    }
+    return typeof value === "string" ? value : value.toString();
+  }, [value, column.id]);
+
   return (
     <div
       onClick={() => editable && setIsEditing(true)}
@@ -38,14 +55,12 @@ const EditableCell: React.FC<EditableCellProps> = ({
           onBlur={onBlur}
           style={{ width: "100%" }}
         />
-      ) : typeof value === "string" ? (
-        value
-      ) : (
-        value.toString()
-      )}
+      ) : displayValue}
     </div>
   );
 };
+
+// ... rest of your code
 
 export const FinancialRecordList = () => {
   const { records, updateRecord, deleteRecord } = useFinancialRecords();
